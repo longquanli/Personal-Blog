@@ -1,0 +1,6 @@
+name=>Tencent
+SECRET_ID=>AKIDQlv18IVgx64qSyfSbYJugJk6TsAG36jP
+SECRET_KEY=>wuneLtFRRFqJafYFn9JNGxSo0JTREqJf
+AUDIO_ADDRESS=>https://videoll.oss-cn-shenzhen.aliyuncs.com/test.wav
+target_address=>./result
+label_address=>./

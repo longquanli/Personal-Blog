@@ -1,0 +1,94 @@
+{% extends '__base__.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block beforehead %}
+
+<script>
+function validateEmail(email) {
+    var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
+    return re.test(email.toLowerCase());
+}
+$(function () {
+    var vm = new Vue({
+        el: '#vm',
+        data: {
+            name: '',
+            email: '',
+            password1: '',
+            password2: ''
+        },
+        methods: {
+            submit: function (event) {
+                event.preventDefault();
+                var $form = $('#vm');
+                if (! this.name.trim()) {
+                    return $form.showFormError('Please input name.');
+                }
+                if (! validateEmail(this.email.trim().toLowerCase())) {
+                    return $form.showFormError('Please input correct email address.');
+                }
+                if (this.password1.length < 6) {
+                    return $form.showFormError('The length of password mush be larger than 6.');
+                }
+                if (this.password1 !== this.password2) {
+                    return $form.showFormError('Passwords do not match.');
+                }
+                var email = this.email.trim().toLowerCase();
+                //first is handler to process data, second is parameter dict, third is return location when finished
+                $form.postJSON('/api/users', {
+                    name: this.name.trim(),
+                    email: email,
+                    passwd: CryptoJS.SHA1(email + ':' + this.password1).toString()
+                }, function (err, r) {
+                    if (err) {
+                        return $form.showFormError(err);
+                    }
+                    return location.assign('/');
+                });
+            }
+        }
+    });
+    $('#vm').show();
+});
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="uk-width-2-3">
+        <h1>Welcome to Register！</h1>
+        <form id="vm" class="uk-form uk-form-stacked">
+            <div class="uk-alert uk-alert-danger uk-hidden"></div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">Name:</label>
+                <div class="uk-form-controls">
+                    <input v-model="name" type="text" maxlength="50" placeholder="name" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">Email:</label>
+                <div class="uk-form-controls">
+                    <input v-model="email" type="text" maxlength="50" placeholder="your-name@example.com" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">Input password:</label>
+                <div class="uk-form-controls">
+                    <input v-model="password1" type="password" maxlength="50" placeholder="input password" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label">Repeat password:</label>
+                <div class="uk-form-controls">
+                    <input v-model="password2" type="password" maxlength="50" placeholder="repeate password" class="uk-width-1-1">
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <button @click="submit" class="uk-button uk-button-primary"><i class="uk-icon-user"></i> Register</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

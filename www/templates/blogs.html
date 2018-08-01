@@ -1,0 +1,62 @@
+{% extends '__base__.html' %}
+{% block title %} BLog {% endblock %}
+{% block beforehead %}
+<script>
+function initVM(data) {
+    page = data.page;
+    var vm = new Vue({
+        el: '#vm',
+        components: { 
+            'pagination' :{
+                template: '<ul class="uk-pagination">' +
+                    '<li v-if="!page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>' +
+                    '<li v-if="page.has_previous"><a onclick="gotoPage(page.page_index-1)" href="#0"><i class="uk-icon-angle-double-left"></i></a></li>' +
+                    '<li class="uk-active"><span v-text="page.page_index"></span></li>' +
+                    '<li v-if="!page.has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i></span></li>' +
+                    '<li v-if="page.has_next"><a onclick="gotoPage(page.page_index+1)" href="#0"><i class="uk-icon-angle-double-right"></i></a></li>' +
+                    '</ul>'
+            }
+        }
+    });
+    $('#vm').show();
+}
+
+$(function() {
+    getJSON('/api/blogs', function (err, results) {
+        if (err) {
+            return fatal(err);
+        }
+        $('#loading').hide();
+        initVM(results);
+    });
+});
+
+</script>
+{% endblock %}
+
+{% block content %}
+	<div id="vm" class= "uk-width-medium-3-4">
+	{% for blog in blogs %}
+		<article class="uk-article">
+			<h2><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h2>
+			<p class ="uk-article-meta">published by {{ blog.created_at|datetime }}</p>
+			<p>{{ blog.summary }}</p>
+			<p><a href="/blog/{{ blog.id }}">read more <i class="uk-icon-angle-double-right"></i></a></p>
+		</article>
+		<!--horizontal rule-->
+		<hr class="uk-article-divider"/>
+	{% endfor %}
+	<pagination></pagination>
+	</div>
+
+	<div class="uk-width-medium-1-4">
+		<div class="uk-panel uk-panel-header">
+			<h3 class="uk-panel-title">Friendly link</h3>
+			<ul class="uk-list uk-list-line">
+				<li><i class="uk-icon-thumbs-o-up"></i> <a target="_blank" href="/management/audios">ASR</a></li>
+				<li><i class="uk-icon-thumbs-o-up"></i> <a target="_blank" href="">Web Courses</a></li>
+				<li><i class="uk-icon-thumbs-o-up"></i> <a target="_blank" href="">Project</a></li>
+			</ul>
+		</div>	
+	</div>
+{% endblock %}

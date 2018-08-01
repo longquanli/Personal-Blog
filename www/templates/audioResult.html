@@ -1,0 +1,28 @@
+{% extends '__base__.html' %}
+
+{% block title %}Well Down!{% endblock %}
+
+{% block beforehead %}
+<script>
+    var content = '{{audio.content}}';
+    var url = '{{audio.url}}'
+$(function(){
+    var vmaudio = new Vue({
+        el : '#vm',
+        data : {
+            content : content,
+            url : url
+        }
+    });
+});
+
+</script>
+{% endblock %}
+{% block content %}
+	<div id = "vm" class="uk-form-row" style="display: block;">
+        <audio v-bind:src="url" controls="controls" preload="auto"></audio>
+        <h2 v-text="content"></h2>
+        <h2 v-text="url"></h2>
+        <p><a href="/manage/audios" class="uk-button uk-button-primary"> go back<i class=""></i></a></p>
+    </div>
+{% endblock%}

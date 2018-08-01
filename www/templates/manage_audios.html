@@ -1,0 +1,116 @@
+{% extends '__base__.html' %}
+
+{% block title %}Audios{% endblock %}
+
+{% block beforehead %}
+
+<script>
+function initVM(data) {
+    page = data.page;
+    var vm = new Vue({
+        el: '#vm',
+        data: {
+            audios: data.audios,
+            page: data.page
+        },
+        methods: {
+            //need to edit later
+            delete_audio: function (audio) {
+                if (confirm('Sure to delete“' + audio.audio_name + '”？Can not restore！')) {
+                    postJSON('/api/audios/' + audio.id + '/delete', function (err, r) {
+                        if (err) {
+                            return alert(err.message || err.error || err);
+                        }
+                        refresh();
+                    });
+                }
+            },
+            download: function (audios) {
+                var zip = new JSZip();
+                var tmp = ""
+                for (var i=0; i < audios.length; i++){
+                    tmp += audios[i].audio_name + " " + audios[i].content + " " + audios[i].url + "\n"
+                }
+                zip.file("ASRresult.txt", tmp);
+                zip.generateAsync({type:"base64"}).then(function (base64) {
+                    window.location = "data:application/zip;base64," +base64; 
+                }, function (err) {
+                    return alert(err.message);
+                });
+            }
+        },
+        components: { 
+            'pagination' :{
+                template: '<ul class="uk-pagination">' +
+                    '<li v-if="!page.has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>' +
+                    '<li v-if="page.has_previous"><a onclick="gotoPage(page.page_index-1)" href="#0"><i class="uk-icon-angle-double-left"></i></a></li>' +
+                    '<li class="uk-active"><span v-text="page.page_index"></span></li>' +
+                    '<li v-if="!page.has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i></span></li>' +
+                    '<li v-if="page.has_next"><a onclick="gotoPage(page.page_index+1)" href="#0"><i class="uk-icon-angle-double-right"></i></a></li>' +
+                    '</ul>'
+            }
+        }
+    });
+    $('#vm').show();
+}
+
+$(function() {
+    getJSON('/api/audios', {
+        page: {{ page_index }}
+    }, function (err, results) {
+        if (err) {
+            return fatal(err);
+        }
+        $('#loading').hide();
+        initVM(results);
+    });
+});
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> loading...</span>
+    </div>
+
+    <div id="vm" class="uk-width-1-1" style="display: block;">
+        <div>
+            <a href="/api/oneSentenceRecognition/addInfo" class="uk-button uk-button-primary"><i class="uk-icon-plus"></i> New ASR</a>
+            <a @click="download(audios)" class="uk-button uk-button-primary"><i class="uk-icon-cloud-download"></i> Download All</a>
+            <table class="uk-table uk-table-hover">
+                <thead>
+                    <tr>
+                        <th class="uk-width-5-10">Audio Name</th>
+                        <th class="uk-width-2-10">Author</th>
+                        <th class="uk-width-2-10">Created Time</th>
+                        <th class="uk-width-1-10">Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="audio in audios">
+                        <td>
+                            <a target="_blank" v-bind:href ="'/api/audio/'+ audio.id" v-text="audio.audio_name"></a>
+                        </td>
+                        <td>
+                            <span v-text="audio.user_name"></span>
+                        </td>
+                        <td>
+                            <span v-text="audio.created_at.toDateTime()"></span>
+                        </td>
+                        <td>
+                            <a href="#0" @click= "delete_audio(audio)"><i class="uk-icon-trash-o"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <pagination></pagination>
+        </div>
+    </div>
+
+{% endblock %}
