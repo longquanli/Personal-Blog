@@ -1,4 +1,4 @@
-SECRET_ID=>AKIDQlv18IVgx64qSyfSbYJugJk6TsAG36jP
-SECRET_KEY=>wuneLtFRRFqJafYFn9JNGxSo0JTREqJf
+SECRET_ID=>******
+SECRET_KEY=>******
 target_address=>./result
 label_address=>./
