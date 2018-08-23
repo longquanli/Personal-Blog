@@ -1,11 +1,4 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#encoding:utf-8
 
 '''
 Default configurations.
