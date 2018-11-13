@@ -195,6 +195,7 @@ def add_routes(app, module_name):
         fn = getattr(mod, attr)
         #make sure fn is function
         if callable(fn):
+            #store all get/post func and its path.
             method = getattr(fn, '__method__', None)
             path = getattr(fn, '__route__', None)
             if method and path:
